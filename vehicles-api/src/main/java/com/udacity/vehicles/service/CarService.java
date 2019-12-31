@@ -61,7 +61,7 @@ public class CarService {
      */
     public Car findById(Long id) throws CarNotFoundException {
         /**
-         * TODO: Find the car by ID from the `repository` if it exists.
+         * Find the car by ID from the `repository` if it exists.
          *   If it does not exist, throw a CarNotFoundException
          *   Remove the below code as part of your implementation.
          */
@@ -74,9 +74,9 @@ public class CarService {
 
 
         /**
-         * TODO: Use the Pricing Web client you create in `VehiclesApiApplication`
+         * Use the Pricing Web client you create in `VehiclesApiApplication`
          *   to get the price based on the `id` input'
-         * TODO: Set the price of the car
+         * Set the price of the car
          * Note: The car class file uses @transient, meaning you will need to call
          *   the pricing service each time to get the price.
          */
@@ -85,10 +85,10 @@ public class CarService {
 
 
         /**
-         * TODO: Use the Maps Web client you create in `VehiclesApiApplication`
+         * Use the Maps Web client you create in `VehiclesApiApplication`
          *   to get the address for the vehicle. You should access the location
          *   from the car object and feed it to the Maps service.
-         * TODO: Set the location of the vehicle, including the address information
+         * Set the location of the vehicle, including the address information
          * Note: The Location class file also uses @transient for the address,
          * meaning the Maps service needs to be called each time for the address.
          */
@@ -106,8 +106,6 @@ public class CarService {
      */
     public Car save(Car car) {
         if (car.getId() != null) {
-            String price = pricing.updatePrice(car.getPrice(), car.getId());
-
             return repository.findById(car.getId())
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
@@ -115,12 +113,11 @@ public class CarService {
                         return repository.save(carToBeUpdated);
                     })
                     .map(savedCar -> {
-                        savedCar.setPrice(price);
+                        savedCar.setPrice(pricing.updatePrice(car.getPrice(), car.getId()));
                         return savedCar;
                     })
                     .orElseThrow(CarNotFoundException::new);
         }
-        log.info(car.toString());
         Car savedCar = repository.save(car);
         log.info("calling pricing service to save a price");
         savedCar.setPrice(pricing.savePrice(car.getPrice(), savedCar.getId()));
@@ -133,14 +130,14 @@ public class CarService {
      */
     public void delete(Long id) {
         /**
-         * TODO: Find the car by ID from the `repository` if it exists.
+         * Find the car by ID from the `repository` if it exists.
          *   If it does not exist, throw a CarNotFoundException
          */
         if(!repository.existsById(id)){
             throw new CarNotFoundException();
         }
         /**
-         * TODO: Delete the car from the repository.
+         * Delete the car from the repository.
          */
         pricing.deletePrice(id);
         repository.deleteById(id);
